@@ -1,0 +1,94 @@
+=======================================
+API DOKUMENTACIJA
+=======================================
+
+1. Preveri uporabniško ime
+---------------------------------------
+Frontend klic (prijavaInRegistracija/js/registracija.js):
+    fetch('/preveriIme', ...)
+
+Backend odziv (app.js):
+    app.post('/preveriIme', async (req, res) => {
+        const { uporabniskoIme } = req.body;
+        const [users] = await db.promise().query(
+            'SELECT * FROM uporabniki WHERE ime = ?',
+            [uporabniskoIme]
+        );
+        res.json({ available: users.length === 0 });
+    });
+
+2. Izbriši datoteko
+---------------------------------------
+Frontend klic (zasciteneDatoteke/js/izbrisi.js):
+    fetch(`/izbrisi/${encodeURIComponent(filename)}`, ...)
+
+Backend odziv (app.js):
+    app.delete('/izbrisi/:ime', (req, res) => {
+        const ime = req.params.ime;
+        fs.unlinkSync(pot);
+        res.json({ message: 'Datoteka izbrisana' });
+    });
+
+3. Naloži eno datoteko
+---------------------------------------
+Frontend klic (zasciteneDatoteke/js/nalozi.js):
+    fetch('/naloziDatoteko', ...)
+
+Backend odziv (app.js):
+    app.post('/naloziDatoteko', upload.single('datoteka'), (req, res) => {
+        res.json({ message: 'Datoteka uspešno naložena' });
+    });
+
+4. Naloži mapo (več datotek)
+---------------------------------------
+Frontend klic (zasciteneDatoteke/js/nalozi.js):
+    fetch('/naloziMapo', ...)
+
+Backend odziv (app.js):
+    app.post('/naloziMapo', upload.array('datoteke'), (req, res) => {
+        res.json({ message: 'Mapa uspešno naložena' });
+    });
+
+5. Pridobi seznam datotek
+---------------------------------------
+Frontend klic (zasciteneDatoteke/js/seznamDatotek.js):
+    fetch('/datoteke')
+
+Backend odziv (app.js):
+    app.get('/datoteke', (req, res) => {
+        const files = fs.readdirSync(shranjevanjeMapa);
+        res.json(files);
+    });
+
+6. Izračunaj velikost mape
+---------------------------------------
+Frontend klic (zasciteneDatoteke/js/seznamDatotek.js):
+    fetch(`/velikostMape/${encodeURIComponent(imeMape)}`)
+
+Backend odziv (app.js):
+    app.get('/velikostMape/:imeMape', (req, res) => {
+        res.json({ velikost: formatiranaVelikost });
+    });
+
+7. Registracija uporabnika
+---------------------------------------
+Frontend klic (prijavaInRegistracija/registracija.html):
+    <form id="registracija" action="/registracija" method="POST">
+
+Backend odziv (app.js):
+    app.post('/registracija', async (req, res) => {
+        const { uporabniskoIme, geslo, potrdiGeslo } = req.body;
+        res.json({ message: 'Uspešna registracija' });
+    });
+
+8. Prijava uporabnika
+---------------------------------------
+Frontend klic (prijavaInRegistracija/prijava.html):
+    <form id="prijava" action="/prijava" method="POST">
+
+Backend odziv (app.js):
+    app.post('/prijava', async (req, res) => {
+        const { uporabniskoIme, geslo } = req.body;
+        res.json({ message: 'Prijava uspešna' });
+    });
+

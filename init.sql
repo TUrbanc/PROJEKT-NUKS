@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS SpletnaStranZaDatoteke;
+
+USE SpletnaStranZaDatoteke;
+
+CREATE TABLE IF NOT EXISTS uporabniki (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ime VARCHAR(100) NOT NULL UNIQUE,
+    geslo VARCHAR(255) NOT NULL
+);
