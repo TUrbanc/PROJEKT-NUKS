@@ -2,6 +2,204 @@
 API DOKUMENTACIJA
 =======================================
 
+API dokumentacija, razdeljena po funkcionalnosti:
+
+Osnovni URL: http://localhost:3000
+
+1. Avtentikacija in seja
+
+POST /registracija
+
+Registrira novega uporabnika.
+
+Body:
+
+uporabniskoIme: string – uporabniško ime
+geslo: string – geslo
+potrdiGeslo`: string – ponovitev gesla
+
+Odgovori:
+
+302 Redirect na / ob uspehu
+400 JSON { errors: { uporabniskoIme: ... } } ob napakah
+500 Napaka na strežniku
+
+---
+
+POST /prijava
+
+Prijavi obstoječega uporabnika.
+
+Body:
+
+uporabniskoIme: string
+geslo: string
+
+Odgovori:
+
+302 Redirect na / ob uspehu
+302 Redirect na /prijava.html?error=1 ob napaki
+
+---
+
+POST /preveriIme
+
+Preveri, ali je uporabniško ime že zasedeno.
+
+Body:
+json
+{
+  "uporabniskoIme": "ime"
+}
+
+Odgovor:
+
+json
+{ "available": true }
+
+---
+
+2. Datoteke in mape
+
+GET /datoteke
+
+Vrne seznam vseh datotek in map v shranjevalni mapi.
+
+Odgovor:
+
+json
+[
+  {
+    "name": "file.txt",
+    "size": 12345,
+    "createdAt": 1680000000000,
+    "isDirectory": false
+  },
+]
+
+---
+
+DELETE /izbrisi/:ime
+
+Izbriše datoteko ali mapo z imenom :ime.
+
+Parametri:
+
+ime: string – ime datoteke ali mape (URL encoded)
+
+Odgovori:
+
+204 Uspešno
+500 Napaka
+
+---
+
+POST /naloziDatoteko
+
+Naloži eno ali več datotek v glavno mapo.
+
+Form-Data:
+
+datoteka: file\[]
+
+Odgovor:
+
+204 Uspešno
+
+---
+
+POST /naloziMapo
+
+Naloži datoteke v podmapo.
+
+Form-Data:
+
+mapa: string – ime mape
+datoteka: file\[]
+
+Odgovor:
+
+204 Uspešno
+
+---
+
+GET /prenesiMapo/:imePreneseneMape
+
+Prenese mapo kot .zip datoteko.
+
+Parametri:
+
+imePreneseneMape: string
+
+Odgovor:
+
+ZIP prenos
+
+---
+
+GET /velikostMape/:imeMape
+
+Izračuna velikost mape.
+
+Parametri:
+
+imeMape: string (URL encoded)
+
+Odgovor:
+
+json
+{ "velikost": 123456 }
+
+---
+
+3. Statika in zaščita
+
+GET /
+
+GET /datoteke.html
+
+Prikaže zaščiteno stran z datotekami (potrebuje prijavo).
+
+GET /zasciteneDatoteke/
+
+Statične zaščitene vsebine (potrebuje prijavo).
+
+GET /nalozeneDatoteke/
+
+Statične vsebine (nalaganje in prikaz nalaganih datotek, potrebuje prijavo).
+
+GET /prijava.html
+
+Stran za prijavo (javna)
+
+---
+
+4. Sejni middleware
+
+Vsi zaščiteni endpointi uporabljajo preveriPrijavo, ki:
+- preusmeri na /prijava.html za HTML zahteve
+- vrne 401 JSON napako za neavtorizirane AJAX klice
+
+---
+
+Konfiguracija baze
+
+Povezava do MySQL baze:
+
+js
+host: process.env.DB_HOST || 'mysql' || 'localhost'
+user: process.env.DB_USER || 'root'
+password: process.env.DB_PASSWORD || 'geslo'
+database: process.env.DB_NAME || 'SpletnaStranZaDatoteke'
+
+V primeru napake poskuša znova do največ 10-krat.
+
+---
+
+
+
+API dokumentacija kam - kaj se vrne
+
 1. Preveri uporabniško ime
 ---------------------------------------
 Frontend klic (prijavaInRegistracija/js/registracija.js):
